@@ -1,0 +1,40 @@
+{% load static %}
+
+<nav aria-label="Навигация по страницам">
+    <ul class="pagination">
+        <!-- Первый -->
+        <li class="page-item {% if page == 1 %}disabled{% endif %}">
+            <a class="page-link" href="?p=1" aria-label="Первая страница">
+                <span aria-hidden="true">&laquo;</span>
+                <span class="sr-only">First</span>
+            </a>
+        </li>
+
+        <!-- Предыдущая страница -->
+        {% if page > 1 %}
+        <li class="page-item">
+            <a class="page-link" href="?p={{ page|add:'-1' }}">{{ page|add:'-1' }}</a>
+        </li>
+        {% endif %}
+
+        <!-- Текущая страница -->
+        <li class="page-item active" aria-current="page">
+            <span class="page-link">{{ page }}</span>
+        </li>
+
+        <!-- Следующая страница -->
+        {% if page < num_pages %}
+        <li class="page-item">
+            <a class="page-link" href="?p={{ page|add:'1' }}">{{ page|add:'1' }}</a>
+        </li>
+        {% endif %}
+
+        <!-- Последняя -->
+        <li class="page-item {% if page == num_pages %}disabled{% endif %}">
+            <a class="page-link" href="?p={{ num_pages }}" aria-label="Последняя страница">
+                <span class="sr-only">Last</span>
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+        </li>
+    </ul>
+</nav>

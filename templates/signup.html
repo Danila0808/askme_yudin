@@ -1,0 +1,51 @@
+{% extends 'layouts/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<h1 class="text-center my-4">Sign Up</h1>
+
+<p class="text-danger text-center">Email already taken!</p>
+
+<form method="post" class="mx-auto mt-4 fs-5" style="max-width: 30em;">
+    <div class="mb-4 row align-items-center">
+        <div class="col-4 text-end"><label for="inputLogin" class="form-label fw-semibold">Login</label></div>
+        <div class="col-8"><input type="text" class="form-control rounded-3" id="inputLogin"></div>
+    </div>
+    <div class="mb-4 row align-items-center">
+        <div class="col-4 text-end"><label for="inputEmail" class="form-label fw-semibold">Email</label></div>
+        <div class="col-8"><input type="email" class="form-control rounded-3" id="inputEmail"></div>
+    </div>
+    <div class="mb-4 row align-items-center">
+        <div class="col-4 text-end"><label for="inputNickname" class="form-label fw-semibold">Nickname</label></div>
+        <div class="col-8"><input type="text" class="form-control rounded-3" id="inputNickname"></div>
+    </div>
+    <div class="mb-4 row align-items-center">
+        <div class="col-4 text-end"><label for="inputPassword" class="form-label fw-semibold">Password</label></div>
+        <div class="col-8"><input type="password" class="form-control rounded-3" id="inputPassword"></div>
+    </div>
+    <div class="mb-4 row align-items-center">
+        <div class="col-4 text-end"><label for="inputRepeatPassword" class="form-label fw-semibold">Repeat Password</label></div>
+        <div class="col-8"><input type="password" class="form-control rounded-3" id="inputRepeatPassword"></div>
+    </div>
+    <div class="mb-4 row align-items-center">
+        <div class="col-4 text-end"><label for="uploadAvatar" class="form-label fw-semibold">Profile Picture</label></div>
+        <div class="col">
+            <label for="uploadAvatar" style="cursor: pointer;">
+                <img src="{% static 'images/placeholder2.png' %}" class="img-fluid rounded-circle w-75 my-3 border"
+                    alt="avatar" style="width: 8em !important;">
+            </label>
+            <div class="input-group">
+                <label class="input-group-text w-50" for="uploadAvatar">Upload</label>
+                <input type="file" class="form-control rounded-end" id="uploadAvatar">
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-12 text-center">
+            <button type="submit" class="btn btn-primary px-5 py-2 fs-5 rounded-4 shadow-sm" style="margin-bottom: 50px;">Sign Up</button>
+        </div>
+    </div>
+</form>
+
+{% endblock %}
