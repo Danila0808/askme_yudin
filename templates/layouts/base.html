@@ -56,7 +56,7 @@
 	        </div>
 	        <div class="card-body" style="font-size: 1.1rem;">
 				{% for tag, color in popular_tags %}
-	          <a class="badge bg-{{ color }} me-2 text-decoration-none">{{ tag }}</a>
+	          <a class="badge bg-{{ color }} me-2 text-decoration-none" href="{% url 'tag' tag_name=tag %}">{{ tag }}</a>
 				{% endfor %}
 	        </div>
 	      </div>
