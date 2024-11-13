@@ -6,7 +6,7 @@
             <!-- Левая часть: изображение -->
             <div class="col-md-5 d-flex flex-column align-items-center">
                 <img src="{% static 'images/placeholder2.png' %}" class="img-fluid rounded w-75 my-3" alt="...">
-                <input type="number" name="rating" value="{{ question.likes }}" class="w-50 my-3">
+                <input type="number" name="rating" value="{{ question.likes.count }}" class="w-50 my-3">
             </div>
 
             <!-- Правая часть: текст -->
@@ -17,13 +17,13 @@
                     <p class="card-text">{{ question.text }}</p>
 
                     <!-- Ссылка на ответы -->
-                    <span><a href="/question/{{ question.id }}#answer-form"> answer ({{ question.answer_count }})</a></span>
+                    <span><a href="/question/{{ question.id }}#answer-form"> answer ({{ question.answers.count }})</a></span>
 
                     <!-- Теги -->
                     <div class="tags mt-3">
                         <span class="d-block">Tags:</span>
-                        {% for tag, color in question.tags %}
-                            <a class="badge bg-{{ color }} me-2 text-decoration-none">{{ tag }}</a>
+                        {% for tag in question.tags.all %}
+                            <a class="badge bg-{{ tag.color }} me-2 text-decoration-none">{{ tag.name }}</a>
                         {% endfor %}
                     </div>
                 </div>

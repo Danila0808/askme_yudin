@@ -7,7 +7,7 @@
     <div class="row g-0">
         <div class="col-4 text-center" style="width: 10em;">
             <img src="{% static 'images/placeholder2.png' %}" class="img-fluid rounded w-75 my-3" alt="...">
-            <input type="number" name="rating" value="{{ question.likes }}" class="w-50 my-3">
+            <input type="number" name="rating" value="{{ question.likes.count }}" class="w-50 my-3">
         </div>
         <div class="col-8">
             <div class="card-body">
@@ -16,8 +16,8 @@
                 <div>
                     </span><span class="ms-1">Tags:</span>
                     <div style="display: inline-block;">
-                        {% for tag, color in question.tags %}
-                            <a class="badge bg-{{ color }} me-2 text-decoration-none">{{ tag }}</a>
+                        {% for tag in question.tags.all %}
+                            <a class="badge bg-{{ tag.color }} me-2 text-decoration-none">{{ tag.name }}</a>
                         {% endfor %}
                     </div>
                 </div>

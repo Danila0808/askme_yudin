@@ -13,54 +13,71 @@ class Command(BaseCommand):
         ratio = kwargs['ratio']
         fake = Faker()
 
-        # Генерация пользователей
-        for _ in range(ratio):
-            user = User.objects.create_user(
+        # Создание пользователей и профилей
+        users = [
+            User(
                 username=fake.user_name(),
                 email=fake.email(),
                 password=fake.password(),
-            )
-            Profile.objects.create(user=user, avatar=fake.image_url())
+            ) for _ in range(ratio)
+        ]
+        users = User.objects.bulk_create(users, batch_size=1000)
 
-        # Генерация тегов
-        tags = []
-        for _ in range(ratio):
-            tag = Tag.objects.create(name=fake.word())
-            tags.append(tag)
+        profiles = [
+            Profile(user=user, avatar=fake.image_url())
+            for user in users
+        ]
+        Profile.objects.bulk_create(profiles, batch_size=1000)
 
-        # Генерация вопросов
-        for _ in range(ratio * 10):
-            author = User.objects.order_by('?').first()  # Выбираем случайного пользователя
-            question = Question.objects.create(
-                author=author,
+        # Создание тегов
+        colors = ["primary", "secondary", "success", "danger", "warning"]
+        tags = [
+            Tag(name=fake.word(), color=random.choice(colors))
+            for _ in range(ratio)
+        ]
+        tags = Tag.objects.bulk_create(tags, batch_size=1000)
+
+        # Создание вопросов
+        questions = [
+            Question(
+                author=random.choice(users),
                 title=fake.sentence(),
                 text=fake.text(),
                 created_at=timezone.now(),
-            )
-            question.tags.set(random.sample(tags, min(3, len(tags))))  # Присваиваем случайные теги
+            ) for _ in range(ratio * 10)
+        ]
+        questions = Question.objects.bulk_create(questions, batch_size=1000)
 
-        # Генерация ответов
-        for _ in range(ratio * 100):
-            question = Question.objects.order_by('?').first()  # Выбираем случайный вопрос
-            author = User.objects.order_by('?').first()  # Выбираем случайного пользователя
-            answer = Answer.objects.create(
-                author=author,
-                question=question,
+        # Присвоение тегов вопросам
+        for question in questions:
+            question.tags.set(random.sample(tags, min(3, len(tags))))
+
+        # Создание ответов
+        answers = [
+            Answer(
+                author=random.choice(users),
+                question=random.choice(questions),
                 text=fake.text(),
                 is_accepted=random.choice([True, False]),
                 created_at=timezone.now(),
-            )
+            ) for _ in range(ratio * 100)
+        ]
+        Answer.objects.bulk_create(answers, batch_size=1000)
 
-        # Генерация лайков для вопросов
+        # Создание лайков к вопросам
+        question_likes = []
         for _ in range(ratio * 200):
-            user = User.objects.order_by('?').first()  # Выбираем случайного пользователя
-            question = Question.objects.order_by('?').first()  # Выбираем случайный вопрос
-            if not QuestionLike.objects.filter(user=user, question=question).exists():
-                QuestionLike.objects.create(user=user, question=question)
+            user = random.choice(users)
+            question = random.choice(questions)
+            if not any(l.user_id == user.id and l.question_id == question.id for l in question_likes):
+                question_likes.append(QuestionLike(user=user, question=question))
+        QuestionLike.objects.bulk_create(question_likes, batch_size=1000)
 
-        # Генерация лайков для ответов
+        # Создание лайков к ответам
+        answer_likes = []
         for _ in range(ratio * 200):
-            user = User.objects.order_by('?').first()  # Выбираем случайного пользователя
-            answer = Answer.objects.order_by('?').first()  # Выбираем случайный ответ
-            if not AnswerLike.objects.filter(user=user, answer=answer).exists():
-                AnswerLike.objects.create(user=user, answer=answer)
+            user = random.choice(users)
+            answer = random.choice(answers)
+            if not any(l.user_id == user.id and l.answer_id == answer.id for l in answer_likes):
+                answer_likes.append(AnswerLike(user=user, answer=answer))
+        AnswerLike.objects.bulk_create(answer_likes, batch_size=1000)

@@ -12,16 +12,17 @@ class Profile(models.Model):
 
 class Tag(models.Model):
     name = models.CharField(max_length=50, unique=True)
+    color = models.CharField(max_length=20, default="primary")
 
     def __str__(self):
         return self.name
 
 class QuestionManager(models.Manager):
     def best_questions(self):
-        return self.annotate(likes_count=Count('likes')).order_by('-likes_count')[:5]
+        return self.annotate(likes_count=Count('likes')).order_by('-likes_count')
 
     def new_questions(self):
-        return self.order_by('-created_at')[:5]
+        return self.order_by('-created_at')
 
 class Question(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -47,10 +48,11 @@ class Question(models.Model):
 
 class Answer(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="answers")
     text = models.TextField(null=False, max_length=5000)
     is_accepted = models.BooleanField(default=False)
     created_at = models.DateTimeField(default=timezone.now)
+    likes = models.ManyToManyField(User, through='AnswerLike', related_name='liked_answers')
 
     def __str__(self):
         return f"Answer by {self.author.username} on '{self.question.title}'"

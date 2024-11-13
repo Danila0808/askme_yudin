@@ -1,39 +1,8 @@
-import random
-import string
 from math import ceil
 from django.shortcuts import render
-
-COLORS = ["primary", "secondary", "success", "danger", "warning"]
-
-def generate_text(word_count):
-    words = [''.join(random.choices(string.ascii_lowercase, k=random.randint(3, 7))) for _ in range(word_count)]
-    return ' '.join(words)
-
-QUESTIONS = [
-    {
-        'id': idx,
-        'title': f"Question Title {random.randint(1, 23)}",
-        'text': generate_text(idx + 3),
-        'answer_count': random.randint(0, 10),
-        'tags': [[f"tag{tag_idx}", COLORS[tag_idx % len(COLORS)]] for tag_idx in range(random.randint(1, 4))],
-        'likes': random.randint(1, 100),
-    }
-    for idx in range(1, 23)
-]
-
-ANSWERS = [
-    {
-        'id': idx,
-        'text': generate_text(idx + 5),
-        'likes': random.randint(0, 50),
-        'is_correct': (idx == 1),
-    }
-    for idx in range(1, 5)
-]
-
-POPULAR_TAGS = [[f"tag{idx}", COLORS[idx % len(COLORS)]] for idx in range(1, 10)]
-
-BEST_MEMBERS = [f"member{random.choice(string.ascii_uppercase)}{random.randint(1, 20)}" for _ in range(3)]
+from django.contrib.auth.models import User
+from app.models import Question, Answer, Tag, QuestionLike, AnswerLike
+from django.db.models import Count
 
 def paginate(items, request, per_page=5):
     try:
@@ -45,125 +14,121 @@ def paginate(items, request, per_page=5):
     paginated_items = items[(current_page - 1) * per_page: current_page * per_page]
     return current_page, paginated_items, max_pages
 
-
 def index(request):
-    page_num, questions, num_pages = paginate(QUESTIONS, request)
+    questions = Question.objects.new_questions()  # Получаем все вопросы из базы данных
+    page_num, questions_paginated, num_pages = paginate(questions, request)
     return render(
         request,
         'index.html',
         {
-            'page_title': 'AskPupkin',
-            'popular_tags': POPULAR_TAGS,
-            'best_members': BEST_MEMBERS,
+            'page_title': 'Askme_yudin',
+            'popular_tags': Tag.objects.all(),  # Получаем все теги
+            'best_members': User.objects.all().order_by('-date_joined')[:3],  # Получаем 3 лучших пользователей по дате регистрации
             'page': page_num,
             'num_pages': num_pages,
-            'is_logged_in': False,
-            'questions': questions,
+            'is_logged_in': request.user.is_authenticated,  # Проверка, авторизован ли пользователь
+            'questions': questions_paginated,
             'category': 'new',
         },
     )
 
-
 def hot(request):
-    page_num, questions, num_pages = paginate(list(reversed(QUESTIONS)), request)
+    questions = Question.objects.best_questions()
+    page_num, questions_paginated, num_pages = paginate(questions, request)
     return render(
         request,
         'index.html',
         {
-            'page_title': 'AskPupkin - Hot',
-            'popular_tags': POPULAR_TAGS,
-            'best_members': BEST_MEMBERS,
+            'page_title': 'Askme_yudin - Hot',
+            'popular_tags': Tag.objects.all(),  # Получаем все теги
+            'best_members': User.objects.all().order_by('-date_joined')[:3],  # Получаем 3 лучших пользователей по дате регистрации
             'page': page_num,
             'num_pages': num_pages,
-            'is_logged_in': True,
-            'questions': questions,
+            'is_logged_in': request.user.is_authenticated,
+            'questions': questions_paginated,
             'category': 'top',
         },
     )
 
-
 def tag(request, tag_name):
-    questions_with_tag = [question for question in QUESTIONS if any(tag[0] == tag_name for tag in question['tags'])]
-    page_num, questions, num_pages = paginate(questions_with_tag, request)
+    tag = Tag.objects.filter(name=tag_name).first()  # Получаем тег по имени
+    questions_with_tag = Question.objects.filter(tags=tag)  # Получаем все вопросы с этим тегом
+    page_num, questions_paginated, num_pages = paginate(questions_with_tag, request)
     return render(
         request,
         'tag.html',
         {
-            'page_title': f'AskPupkin - Tag: {tag_name}',
-            'popular_tags': POPULAR_TAGS,
-            'best_members': BEST_MEMBERS,
+            'page_title': f'Askme_yudin - Tag: {tag_name}',
+            'popular_tags': Tag.objects.all(),  # Получаем все теги
+            'best_members': User.objects.all().order_by('-date_joined')[:3],  # Получаем 3 лучших пользователей по дате регистрации
             'page': page_num,
             'num_pages': num_pages,
-            'is_logged_in': True,
+            'is_logged_in': request.user.is_authenticated,
             'tag': tag_name,
-            'questions': questions,
+            'questions': questions_paginated,
         },
     )
-
 
 def ask(request):
     return render(
         request,
         'ask.html',
         {
-            'page_title': 'AskPupkin - Ask',
-            'popular_tags': POPULAR_TAGS,
-            'best_members': BEST_MEMBERS,
-            'is_logged_in': True,
+            'page_title': 'Askme_yudin - Ask',
+            'popular_tags': Tag.objects.all(),  # Получаем все теги
+            'best_members': User.objects.all().order_by('-date_joined')[:3],  # Получаем 3 лучших пользователей по дате регистрации
+            'is_logged_in': request.user.is_authenticated,
         },
     )
 
-
 def question(request, question_id):
-    question_data = next((q for q in QUESTIONS if q['id'] == question_id), None)
+    question_data = Question.objects.filter(id=question_id).first()  # Получаем конкретный вопрос по ID
+    answers = Answer.objects.filter(question=question_data)  # Получаем все ответы на этот вопрос
     return render(
         request,
         'question.html',
         {
-            'page_title': 'AskPupkin - Question',
-            'popular_tags': POPULAR_TAGS,
-            'best_members': BEST_MEMBERS,
-            'is_logged_in': True,
+            'page_title': 'Askme_yudin - Question',
+            'popular_tags': Tag.objects.all(),  # Получаем все теги
+            'best_members': User.objects.all().order_by('-date_joined')[:3],  # Получаем 3 лучших пользователей по дате регистрации
+            'is_logged_in': request.user.is_authenticated,
             'question': question_data,
-            'answers': ANSWERS,
+            'answers': answers,
         },
     )
-
 
 def settings(request):
     return render(
         request,
         'settings.html',
         {
-            'page_title': 'AskPupkin - Settings',
-            'popular_tags': POPULAR_TAGS,
-            'best_members': BEST_MEMBERS,
-            'is_logged_in': True,
+            'page_title': 'Askme_yudin - Settings',
+            'popular_tags': Tag.objects.all(),  # Получаем все теги
+            'best_members': User.objects.all().order_by('-date_joined')[:3],  # Получаем 3 лучших пользователей по дате регистрации
+            'is_logged_in': request.user.is_authenticated,
         },
     )
-
 
 def signup(request):
     return render(
         request,
         'signup.html',
         {
-            'page_title': 'AskPupkin - Sign Up',
-            'popular_tags': POPULAR_TAGS,
-            'best_members': BEST_MEMBERS,
-            'is_logged_in': False,
+            'page_title': 'Askme_yudin - Sign Up',
+            'popular_tags': Tag.objects.all(),  # Получаем все теги
+            'best_members': User.objects.all().order_by('-date_joined')[:3],  # Получаем 3 лучших пользователей по дате регистрации
+            'is_logged_in': request.user.is_authenticated,
         },
     )
-
 
 def login(request):
     return render(
         request,
         'login.html',
         {
-            'page_title': 'AskPupkin - Log In',
-            'popular_tags': POPULAR_TAGS,
-            'best_members': BEST_MEMBERS,
-            'is_logged_in': False,
+            'page_title': 'Askme_yudin - Log In',
+            'popular_tags': Tag.objects.all(),  # Получаем все теги
+            'best_members': User.objects.all().order_by('-date_joined')[:3],  # Получаем 3 лучших пользователей по дате регистрации
+            'is_logged_in': request.user.is_authenticated,
         },
     )
