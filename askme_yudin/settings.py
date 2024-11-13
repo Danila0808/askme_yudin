@@ -76,10 +76,15 @@ WSGI_APPLICATION = "askme_yudin.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',  # Используем MySQL
+        'NAME': 'db',  # Имя вашей базы данных
+        'USER': 'admin',  # Имя пользователя для базы данных
+        'PASSWORD': 'admin',  # Пароль пользователя
+        'HOST': 'localhost',  # Хост, обычно localhost
+        'PORT': '3306',  # Порт MySQL, по умолчанию 3306
     }
 }
 
