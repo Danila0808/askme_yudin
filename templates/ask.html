@@ -1,4 +1,5 @@
 {% extends 'layouts/base.html' %}
+{% load bootstrap5 %}
 
 {% load static %}
 
@@ -7,45 +8,49 @@
 <h1 class="fs-1 mb-4">New Question</h1>
 
 <!-- Сообщение об ошибке, если оно есть -->
-<p class="text-danger">Question title too short!</p>
+<!--<p class="text-danger">Question title too short!</p>-->
 
 <!-- Форма для добавления вопроса -->
 <div class="card bg-light" style="border: 1px solid #ddd; padding: 1.5em; background: light;">
     <div class="card-body">
-        <form method="post" class="fs-5">
+        <form action="{% url 'ask' %}" method="post" class="fs-5">
+            {% bootstrap_form form %}
             {% csrf_token %}
 
-            <!-- Заголовок вопроса -->
-            <div class="mb-3 row">
-                <div class="col-2"><label for="inputTitle" class="form-label">Title</label></div>
-                <div class="col">
-                    <input type="text" class="form-control" id="inputTitle" name="title" required>
-                </div>
-            </div>
 
-            <!-- Текст вопроса -->
-            <div class="mb-3 row">
-                <div class="col-2"><label for="inputText" class="form-label">Text</label></div>
-                <div class="col">
-                    <textarea id="inputText" class="form-control" cols="30" rows="10" name="text" style="resize: none;" required></textarea>
-                </div>
-            </div>
+<!--            &lt;!&ndash; Заголовок вопроса &ndash;&gt;-->
+<!--            <div class="mb-3 row">-->
+<!--                <div class="col-2"><label for="inputTitle" class="form-label">Title</label></div>-->
+<!--                <div class="col">-->
+<!--                    <input type="text" class="form-control" id="inputTitle" name="title" required>-->
+<!--                </div>-->
+<!--            </div>-->
 
-            <!-- Теги -->
-            <div class="mb-3 row">
-                <div class="col-2"><label for="inputTags" class="form-label">Tags</label></div>
-                <div class="col">
-                    <input type="text" class="form-control" id="inputTags" name="tags">
-                </div>
-            </div>
+<!--            &lt;!&ndash; Текст вопроса &ndash;&gt;-->
+<!--            <div class="mb-3 row">-->
+<!--                <div class="col-2"><label for="inputText" class="form-label">Text</label></div>-->
+<!--                <div class="col">-->
+<!--                    <textarea id="inputText" class="form-control" cols="30" rows="10" name="text" style="resize: none;" required></textarea>-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--            &lt;!&ndash; Теги &ndash;&gt;-->
+<!--            <div class="mb-3 row">-->
+<!--                <div class="col-2"><label for="inputTags" class="form-label">Tags</label></div>-->
+<!--                <div class="col">-->
+<!--                    <input type="text" class="form-control" id="inputTags" name="tags">-->
+<!--                </div>-->
+<!--            </div>-->
 
             <!-- Кнопка отправки формы -->
+            {% buttons %}
             <div class="row">
                 <div class="col-2"></div>
                 <div class="col d-flex justify-content-center" >
                     <button type="submit" class="btn btn-warning px-4" style="border-radius: 50px; padding-left: 2em; padding-right: 2em;">ASK</button>
                 </div>
             </div>
+            {% endbuttons %}
         </form>
     </div>
 </div>

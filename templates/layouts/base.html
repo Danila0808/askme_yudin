@@ -28,10 +28,14 @@
 				</div>
 			  {% else %}
 				<div class="ms-auto d-flex align-items-center">
-					<img src="{% static 'images/placeholder2.png' %}" class="rounded-circle me-3" alt="User avatar" style="width: 40px; height: 40px;">
+					<img src="{% if request.user.profile.avatar %}{{ request.user.profile.avatar.url }}{% else %}{% static 'images/placeholder2.png' %}{% endif %}" class="rounded-circle me-3" alt="User avatar" style="width: 40px; height: 40px;">
 					<div>
 						<p class="fs-6 m-0"><a href="{% url 'settings' %}" class="text-light text-decoration-none">Profile</a></p>
 					</div>
+					<form method="post" action="{% url 'logout' %}" class="ms-3">
+<!--						{% csrf_token %}-->
+						<button type="submit" class="btn btn-outline-light">Log out</button>
+					</form>
 				</div>
 			  {% endif %}
 	      </div>
